@@ -1,0 +1,8 @@
+{
+  "validation_count": 700,
+  "calibration_count": 350,
+  "gate_count": 350,
+  "calibration_ids": "splits/stage7_threshold_calibration/calibration_ids.txt",
+  "gate_split": "splits/stage7_threshold_calibration/gate_split.txt",
+  "image_alias_dir": "<external Test2 images mounted by the caller>"
+}
