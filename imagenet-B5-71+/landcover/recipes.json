@@ -1,0 +1,2347 @@
+{
+  "defaults": {
+    "AIC_PROJECT_ROOT": {
+      "environment": "AIC_PROJECT_ROOT",
+      "fallback": "@checkout"
+    },
+    "AIC_DATA_ROOT": {
+      "environment": "AIC_DATA_ROOT",
+      "fallback": "/data/train/train"
+    },
+    "AIC_PRETRAINED_CHECKPOINT": {
+      "environment": "AIC_PRETRAINED_CHECKPOINT",
+      "fallback": "${AIC_PROJECT_ROOT}/checkpoints/mask2former_internimage_h_896_80k_cocostuff2ade20k.pth"
+    },
+    "AIC_TEST2_ROOT": {
+      "environment": "AIC_TEST2_ROOT",
+      "fallback": "/data/test_2/images"
+    },
+    "AIC_PSEUDO_PROB_ROOT": {
+      "environment": "AIC_PSEUDO_PROB_ROOT",
+      "fallback": "/data/pseudo/stage4/probs_q8"
+    },
+    "AIC_PSEUDO_PROB_ROOT__VARIANT_1": {
+      "environment": "AIC_PSEUDO_PROB_ROOT_VARIANT_1",
+      "fallback": "/data/pseudo/stage6/probs_q8"
+    },
+    "AIC_WORK_ROOT": {
+      "environment": "AIC_WORK_ROOT",
+      "fallback": "${AIC_PROJECT_ROOT}/work_dirs"
+    },
+    "AIC_STAGE6_CHECKPOINT": {
+      "environment": "AIC_STAGE6_CHECKPOINT",
+      "fallback": "${AIC_WORK_ROOT}/internimage_h_m2f_stage6_single_teacher_native_crop_6e/best_mIoU_epoch_1.pth"
+    },
+    "AIC_STAGE7_CHECKPOINT": {
+      "environment": "AIC_STAGE7_CHECKPOINT",
+      "fallback": "${AIC_WORK_ROOT}/internimage_h_m2f_stage7_teacher_refresh_768_epoch10_patience3/best_mIoU_epoch_1.pth"
+    },
+    "AIC_STAGE7_PSEUDO_ROOT": {
+      "environment": "AIC_STAGE7_PSEUDO_ROOT",
+      "fallback": "/data/pseudo/stage7/probs_q8"
+    }
+  },
+  "shared": {
+    "shared_7d1772920c7d": [
+      {
+        "type": "LoadImageFromFile"
+      },
+      {
+        "type": "LoadAnnotations",
+        "reduce_zero_label": true
+      },
+      {
+        "type": "QuarterTurn",
+        "prob": 0.5
+      },
+      {
+        "type": "Resize",
+        "img_scale": {
+          "$tuple": [
+            2560,
+            640
+          ]
+        },
+        "ratio_range": {
+          "$tuple": [
+            0.5,
+            2.0
+          ]
+        }
+      },
+      {
+        "type": "RandomCrop",
+        "crop_size": {
+          "$tuple": [
+            640,
+            640
+          ]
+        },
+        "cat_max_ratio": 0.75
+      },
+      {
+        "type": "RandomFlip",
+        "prob": 0.5,
+        "direction": "horizontal"
+      },
+      {
+        "type": "VerticalReflection",
+        "prob": 0.5
+      },
+      {
+        "type": "PhotoMetricDistortion"
+      },
+      {
+        "type": "Normalize",
+        "mean": [
+          123.675,
+          116.28,
+          103.53
+        ],
+        "std": [
+          58.395,
+          57.12,
+          57.375
+        ],
+        "to_rgb": true
+      },
+      {
+        "type": "Pad",
+        "size": {
+          "$tuple": [
+            640,
+            640
+          ]
+        },
+        "pad_val": 0,
+        "seg_pad_val": 255
+      },
+      {
+        "type": "ToMask"
+      },
+      {
+        "type": "DefaultFormatBundle"
+      },
+      {
+        "type": "Collect",
+        "keys": [
+          "img",
+          "gt_semantic_seg",
+          "gt_masks",
+          "gt_labels"
+        ]
+      }
+    ],
+    "shared_bf750ebf595e": [
+      {
+        "type": "Resize",
+        "keep_ratio": true
+      },
+      {
+        "type": "ResizeToMultiple",
+        "size_divisor": 32
+      },
+      {
+        "type": "RandomFlip"
+      },
+      {
+        "type": "Normalize",
+        "mean": [
+          123.675,
+          116.28,
+          103.53
+        ],
+        "std": [
+          58.395,
+          57.12,
+          57.375
+        ],
+        "to_rgb": true
+      },
+      {
+        "type": "ImageToTensor",
+        "keys": [
+          "img"
+        ]
+      },
+      {
+        "type": "Collect",
+        "keys": [
+          "img"
+        ]
+      }
+    ],
+    "shared_40ee752bddad": {
+      "type": "MultiScaleFlipAug",
+      "img_scale": {
+        "$tuple": [
+          2048,
+          1024
+        ]
+      },
+      "flip": false,
+      "transforms": {
+        "$ref": "shared_bf750ebf595e"
+      }
+    },
+    "shared_f0edeb898a3a": [
+      {
+        "type": "LoadImageFromFile"
+      },
+      {
+        "$ref": "shared_40ee752bddad"
+      }
+    ],
+    "shared_12b82277cf94": {
+      "_delete_": true,
+      "type": "LandCoverDataset",
+      "data_root": "${AIC_DATA_ROOT}",
+      "img_dir": "images",
+      "ann_dir": "masks",
+      "split": "${AIC_PROJECT_ROOT}/splits/val.txt",
+      "pipeline": {
+        "$ref": "shared_f0edeb898a3a"
+      }
+    },
+    "shared_a7aec166257c": [
+      {
+        "type": "LoadImageFromFile"
+      },
+      {
+        "type": "LoadAnnotations",
+        "reduce_zero_label": true
+      },
+      {
+        "type": "QuarterTurn",
+        "prob": 0.5
+      },
+      {
+        "type": "Resize",
+        "img_scale": {
+          "$tuple": [
+            3072,
+            768
+          ]
+        },
+        "ratio_range": {
+          "$tuple": [
+            0.5,
+            2.0
+          ]
+        }
+      },
+      {
+        "type": "RandomCrop",
+        "crop_size": {
+          "$tuple": [
+            768,
+            768
+          ]
+        },
+        "cat_max_ratio": 0.75
+      },
+      {
+        "type": "RandomFlip",
+        "prob": 0.5,
+        "direction": "horizontal"
+      },
+      {
+        "type": "VerticalReflection",
+        "prob": 0.5
+      },
+      {
+        "type": "PhotoMetricDistortion"
+      },
+      {
+        "type": "Normalize",
+        "mean": [
+          123.675,
+          116.28,
+          103.53
+        ],
+        "std": [
+          58.395,
+          57.12,
+          57.375
+        ],
+        "to_rgb": true
+      },
+      {
+        "type": "Pad",
+        "size": {
+          "$tuple": [
+            768,
+            768
+          ]
+        },
+        "pad_val": 0,
+        "seg_pad_val": 255
+      },
+      {
+        "type": "ToMask"
+      },
+      {
+        "type": "DefaultFormatBundle"
+      },
+      {
+        "type": "Collect",
+        "keys": [
+          "img",
+          "gt_semantic_seg",
+          "gt_masks",
+          "gt_labels"
+        ]
+      }
+    ],
+    "shared_0002b288b7bb": [
+      {
+        "type": "ParametersOnlySaver",
+        "priority": "HIGH"
+      },
+      {
+        "type": "BackbonePolicy",
+        "trainable_levels": {
+          "$tuple": [
+            2,
+            3
+          ]
+        }
+      },
+      {
+        "type": "EMAHook",
+        "momentum": 0.005,
+        "interval": 1,
+        "warm_up": 250
+      }
+    ],
+    "shared_f5f737bde635": {
+      "type": "MultiScaleFlipAug",
+      "img_scale": {
+        "$tuple": [
+          2048,
+          1024
+        ]
+      },
+      "img_ratios": [
+        0.75,
+        1.0,
+        1.125
+      ],
+      "flip": true,
+      "flip_direction": "horizontal",
+      "transforms": {
+        "$ref": "shared_bf750ebf595e"
+      }
+    },
+    "shared_efdda9c58812": [
+      {
+        "type": "LoadImageFromFile"
+      },
+      {
+        "$ref": "shared_f5f737bde635"
+      }
+    ],
+    "shared_cdcadea136ff": {
+      "pipeline": {
+        "$ref": "shared_efdda9c58812"
+      }
+    },
+    "shared_2285f8a01086": [
+      "landcover.data.catalog",
+      "landcover.data.spatial",
+      "landcover.data.teacher_store",
+      "landcover.data.crop_sampling",
+      "landcover.training.policies",
+      "landcover.training.warm_start",
+      "landcover.models.adaptation"
+    ],
+    "shared_f0d081899da6": {
+      "imports": {
+        "$ref": "shared_2285f8a01086"
+      },
+      "allow_failed_imports": false
+    },
+    "shared_25e0151eac5d": [
+      {
+        "type": "LoadImageFromFile"
+      },
+      {
+        "type": "Resize",
+        "img_scale": {
+          "$tuple": [
+            768,
+            768
+          ]
+        },
+        "keep_ratio": false
+      },
+      {
+        "type": "ReadTeacherDistribution",
+        "prob_dir": "${AIC_PSEUDO_PROB_ROOT}"
+      },
+      {
+        "type": "TeacherGeometry",
+        "rotate90_prob": 0.5,
+        "horizontal_prob": 0.5,
+        "vertical_prob": 0.5
+      },
+      {
+        "type": "PhotoMetricDistortion"
+      },
+      {
+        "type": "Normalize",
+        "mean": [
+          123.675,
+          116.28,
+          103.53
+        ],
+        "std": [
+          58.395,
+          57.12,
+          57.375
+        ],
+        "to_rgb": true
+      },
+      {
+        "type": "Pad",
+        "size": {
+          "$tuple": [
+            768,
+            768
+          ]
+        },
+        "pad_val": 0,
+        "seg_pad_val": 255
+      },
+      {
+        "type": "DefaultFormatBundle"
+      },
+      {
+        "type": "PackTeacherDistribution"
+      },
+      {
+        "type": "Collect",
+        "keys": [
+          "img",
+          "teacher_probs"
+        ]
+      }
+    ],
+    "shared_bddc999a5fe4": {
+      "type": "LandCoverDataset",
+      "data_root": "${AIC_DATA_ROOT}",
+      "img_dir": "images",
+      "ann_dir": "masks",
+      "split": "${AIC_PROJECT_ROOT}/splits/train.txt",
+      "pipeline": {
+        "$ref": "shared_a7aec166257c"
+      }
+    },
+    "shared_ee4970b8caae": {
+      "type": "TeacherImageDataset",
+      "data_root": null,
+      "img_dir": "${AIC_TEST2_ROOT}",
+      "ann_dir": null,
+      "split": null,
+      "pipeline": {
+        "$ref": "shared_25e0151eac5d"
+      }
+    },
+    "shared_8d2f14abf6b0": {
+      "type": "MultiScaleFlipAug",
+      "img_scale": {
+        "$tuple": [
+          2048,
+          1024
+        ]
+      },
+      "img_ratios": [
+        0.75,
+        1.0,
+        1.125
+      ],
+      "flip": true,
+      "flip_direction": [
+        "horizontal"
+      ],
+      "transforms": {
+        "$ref": "shared_bf750ebf595e"
+      }
+    },
+    "shared_3f00a22c178f": [
+      {
+        "type": "LoadImageFromFile"
+      },
+      {
+        "$ref": "shared_8d2f14abf6b0"
+      }
+    ],
+    "shared_3e7489736f29": {
+      "pipeline": {
+        "$ref": "shared_3f00a22c178f"
+      }
+    },
+    "shared_ca9ad0eb0d36": {
+      "type": "TeacherScaleCrop",
+      "crop_size": {
+        "$tuple": [
+          768,
+          768
+        ]
+      },
+      "ratio_range": {
+        "$tuple": [
+          0.75,
+          1.5
+        ]
+      },
+      "full_image_prob": 0.35,
+      "barren_focus_prob": 0.5,
+      "barren_margin": 0.1,
+      "candidates": 8
+    },
+    "shared_b5c17c023ebb": [
+      {
+        "type": "LoadImageFromFile"
+      },
+      {
+        "type": "ReadTeacherDistribution",
+        "prob_dir": "${AIC_PSEUDO_PROB_ROOT__VARIANT_1}"
+      },
+      {
+        "$ref": "shared_ca9ad0eb0d36"
+      },
+      {
+        "type": "TeacherGeometry",
+        "rotate90_prob": 0.5,
+        "horizontal_prob": 0.5,
+        "vertical_prob": 0.5
+      },
+      {
+        "type": "PhotoMetricDistortion"
+      },
+      {
+        "type": "Normalize",
+        "mean": [
+          123.675,
+          116.28,
+          103.53
+        ],
+        "std": [
+          58.395,
+          57.12,
+          57.375
+        ],
+        "to_rgb": true
+      },
+      {
+        "type": "Pad",
+        "size": {
+          "$tuple": [
+            768,
+            768
+          ]
+        },
+        "pad_val": 0,
+        "seg_pad_val": 255
+      },
+      {
+        "type": "DefaultFormatBundle"
+      },
+      {
+        "type": "PackTeacherDistribution"
+      },
+      {
+        "type": "Collect",
+        "keys": [
+          "img",
+          "teacher_probs"
+        ]
+      }
+    ],
+    "shared_23c917f2850c": {
+      "type": "TeacherImageDataset",
+      "data_root": null,
+      "img_dir": "${AIC_TEST2_ROOT}",
+      "ann_dir": null,
+      "split": null,
+      "pipeline": {
+        "$ref": "shared_b5c17c023ebb"
+      }
+    },
+    "shared_fa606ee49853": {
+      "type": "InternImage",
+      "core_op": "DCNv3",
+      "channels": 320,
+      "depths": [
+        6,
+        6,
+        32,
+        6
+      ],
+      "groups": [
+        10,
+        20,
+        40,
+        80
+      ],
+      "mlp_ratio": 4.0,
+      "drop_path_rate": 0.5,
+      "norm_layer": "LN",
+      "layer_scale": null,
+      "offset_scale": 1.0,
+      "post_norm": false,
+      "dw_kernel_size": 5,
+      "res_post_norm": true,
+      "level2_post_norm": true,
+      "level2_post_norm_block_ids": [
+        5,
+        11,
+        17,
+        23,
+        29
+      ],
+      "center_feature_scale": true,
+      "with_cp": true,
+      "out_indices": {
+        "$tuple": [
+          0,
+          1,
+          2,
+          3
+        ]
+      },
+      "init_cfg": null,
+      "frozen_stages": 2
+    },
+    "shared_f29852e5ea2c": {
+      "type": "MultiScaleDeformableAttention",
+      "embed_dims": 1024,
+      "num_heads": 32,
+      "num_levels": 3,
+      "num_points": 4,
+      "im2col_step": 64,
+      "dropout": 0.0,
+      "batch_first": false,
+      "norm_cfg": null,
+      "init_cfg": null
+    },
+    "shared_d72b0b9a0fb6": {
+      "type": "BaseTransformerLayer",
+      "attn_cfgs": {
+        "$ref": "shared_f29852e5ea2c"
+      },
+      "ffn_cfgs": {
+        "type": "FFN",
+        "embed_dims": 1024,
+        "feedforward_channels": 4096,
+        "num_fcs": 2,
+        "ffn_drop": 0.0,
+        "act_cfg": {
+          "type": "ReLU",
+          "inplace": true
+        },
+        "with_cp": true
+      },
+      "operation_order": {
+        "$tuple": [
+          "self_attn",
+          "norm",
+          "ffn",
+          "norm"
+        ]
+      }
+    },
+    "shared_e10af8cf1f45": {
+      "type": "DetrTransformerEncoder",
+      "num_layers": 6,
+      "transformerlayers": {
+        "$ref": "shared_d72b0b9a0fb6"
+      },
+      "init_cfg": null
+    },
+    "shared_2ba6976811c6": {
+      "type": "MSDeformAttnPixelDecoder",
+      "num_outs": 3,
+      "norm_cfg": {
+        "type": "GN",
+        "num_groups": 32
+      },
+      "act_cfg": {
+        "type": "ReLU"
+      },
+      "encoder": {
+        "$ref": "shared_e10af8cf1f45"
+      },
+      "positional_encoding": {
+        "type": "SinePositionalEncoding",
+        "num_feats": 512,
+        "normalize": true
+      },
+      "init_cfg": null
+    },
+    "shared_0a17d34337d3": {
+      "embed_dims": 1024,
+      "feedforward_channels": 4096,
+      "num_fcs": 2,
+      "act_cfg": {
+        "type": "ReLU",
+        "inplace": true
+      },
+      "ffn_drop": 0.0,
+      "dropout_layer": null,
+      "add_identity": true,
+      "with_cp": true
+    },
+    "shared_c7400169d6e5": {
+      "type": "DetrTransformerDecoderLayer",
+      "attn_cfgs": {
+        "type": "MultiheadAttention",
+        "embed_dims": 1024,
+        "num_heads": 32,
+        "attn_drop": 0.0,
+        "proj_drop": 0.0,
+        "dropout_layer": null,
+        "batch_first": false
+      },
+      "ffn_cfgs": {
+        "$ref": "shared_0a17d34337d3"
+      },
+      "feedforward_channels": 4096,
+      "operation_order": {
+        "$tuple": [
+          "cross_attn",
+          "norm",
+          "self_attn",
+          "norm",
+          "ffn",
+          "norm"
+        ]
+      }
+    },
+    "shared_0f04296ed37a": {
+      "type": "DetrTransformerDecoder",
+      "return_intermediate": true,
+      "num_layers": 9,
+      "transformerlayers": {
+        "$ref": "shared_c7400169d6e5"
+      },
+      "init_cfg": null
+    },
+    "shared_8e7635861375": {
+      "type": "Mask2FormerHead",
+      "in_channels": [
+        320,
+        640,
+        1280,
+        2560
+      ],
+      "feat_channels": 1024,
+      "out_channels": 1024,
+      "in_index": [
+        0,
+        1,
+        2,
+        3
+      ],
+      "num_things_classes": 100,
+      "num_stuff_classes": 50,
+      "num_queries": 200,
+      "num_transformer_feat_level": 3,
+      "pixel_decoder": {
+        "$ref": "shared_2ba6976811c6"
+      },
+      "enforce_decoder_input_project": false,
+      "positional_encoding": {
+        "type": "SinePositionalEncoding",
+        "num_feats": 512,
+        "normalize": true
+      },
+      "transformer_decoder": {
+        "$ref": "shared_0f04296ed37a"
+      },
+      "loss_cls": {
+        "type": "CrossEntropyLoss",
+        "use_sigmoid": false,
+        "loss_weight": 2.0,
+        "reduction": "mean",
+        "class_weight": [
+          0.75,
+          0.85,
+          1.0,
+          1.0,
+          1.25,
+          0.75,
+          1.0,
+          1.25,
+          0.1
+        ]
+      },
+      "loss_mask": {
+        "type": "CrossEntropyLoss",
+        "use_sigmoid": true,
+        "reduction": "mean",
+        "loss_weight": 5.0
+      },
+      "loss_dice": {
+        "type": "DiceLoss",
+        "use_sigmoid": true,
+        "activate": true,
+        "reduction": "mean",
+        "naive_dice": true,
+        "eps": 1.0,
+        "loss_weight": 5.0
+      },
+      "num_classes": 8
+    },
+    "shared_7079e689dd5d": {
+      "type": "MaskHungarianAssigner",
+      "cls_cost": {
+        "type": "ClassificationCost",
+        "weight": 2.0
+      },
+      "mask_cost": {
+        "type": "CrossEntropyLossCost",
+        "weight": 5.0,
+        "use_sigmoid": true
+      },
+      "dice_cost": {
+        "type": "DiceCost",
+        "weight": 5.0,
+        "pred_act": true,
+        "eps": 1.0
+      }
+    },
+    "shared_f4f800790c1b": {
+      "num_points": 12544,
+      "oversample_ratio": 3.0,
+      "importance_sample_ratio": 0.75,
+      "assigner": {
+        "$ref": "shared_7079e689dd5d"
+      },
+      "sampler": {
+        "type": "MaskPseudoSampler"
+      }
+    },
+    "shared_bf5c5bf5fb78": {
+      "type": "LandCoverDataset",
+      "data_root": "${AIC_DATA_ROOT}",
+      "img_dir": "images",
+      "ann_dir": "masks",
+      "split": "${AIC_PROJECT_ROOT}/splits/train.txt",
+      "pipeline": {
+        "$ref": "shared_a7aec166257c"
+      }
+    },
+    "shared_5e542729ce85": {
+      "type": "LandCoverDataset",
+      "data_root": "${AIC_DATA_ROOT}",
+      "img_dir": "images",
+      "ann_dir": "masks",
+      "split": "${AIC_PROJECT_ROOT}/splits/stage7_threshold_calibration/gate_split.txt",
+      "pipeline": {
+        "$ref": "shared_f0edeb898a3a"
+      }
+    },
+    "shared_cbc4ccccf779": {
+      "type": "LandCoverDataset",
+      "data_root": "${AIC_DATA_ROOT}",
+      "img_dir": "images",
+      "ann_dir": "masks",
+      "split": "${AIC_PROJECT_ROOT}/splits/val.txt",
+      "pipeline": {
+        "$ref": "shared_f0edeb898a3a"
+      }
+    },
+    "shared_33b85e3b8ddf": {
+      "type": "AdamW",
+      "lr": 1e-07,
+      "betas": {
+        "$tuple": [
+          0.9,
+          0.999
+        ]
+      },
+      "weight_decay": 0.05,
+      "constructor": "CustomLayerDecayOptimizerConstructor",
+      "paramwise_cfg": {
+        "num_layers": 50,
+        "layer_decay_rate": 0.95,
+        "depths": [
+          6,
+          6,
+          32,
+          6
+        ],
+        "offset_lr_scale": 1.0
+      }
+    },
+    "shared_4b06c35366e1": [
+      {
+        "type": "LoadImageFromFile"
+      },
+      {
+        "type": "ReadTeacherDistribution",
+        "prob_dir": "${AIC_PSEUDO_PROB_ROOT__VARIANT_1}"
+      },
+      {
+        "$ref": "shared_ca9ad0eb0d36"
+      },
+      {
+        "type": "TeacherGeometry",
+        "rotate90_prob": 0.5,
+        "horizontal_prob": 0.5,
+        "vertical_prob": 0.5
+      },
+      {
+        "type": "PhotoMetricDistortion"
+      },
+      {
+        "type": "Normalize",
+        "mean": [
+          123.675,
+          116.28,
+          103.53
+        ],
+        "std": [
+          58.395,
+          57.12,
+          57.375
+        ],
+        "to_rgb": true
+      },
+      {
+        "type": "Pad",
+        "size": {
+          "$tuple": [
+            768,
+            768
+          ]
+        },
+        "pad_val": 0,
+        "seg_pad_val": 255
+      },
+      {
+        "type": "DefaultFormatBundle"
+      },
+      {
+        "type": "PackTeacherDistribution"
+      },
+      {
+        "type": "Collect",
+        "keys": [
+          "img",
+          "teacher_probs"
+        ]
+      }
+    ],
+    "shared_263ca737c9d1": [
+      {
+        "type": "LoadImageFromFile"
+      },
+      {
+        "type": "LoadAnnotations",
+        "reduce_zero_label": true
+      },
+      {
+        "type": "QuarterTurn",
+        "prob": 0.5
+      },
+      {
+        "type": "Resize",
+        "img_scale": {
+          "$tuple": [
+            3328,
+            832
+          ]
+        },
+        "ratio_range": {
+          "$tuple": [
+            0.5,
+            2.0
+          ]
+        }
+      },
+      {
+        "type": "RandomCrop",
+        "crop_size": {
+          "$tuple": [
+            832,
+            832
+          ]
+        },
+        "cat_max_ratio": 0.75
+      },
+      {
+        "type": "RandomFlip",
+        "prob": 0.5,
+        "direction": "horizontal"
+      },
+      {
+        "type": "VerticalReflection",
+        "prob": 0.5
+      },
+      {
+        "type": "PhotoMetricDistortion"
+      },
+      {
+        "type": "Normalize",
+        "mean": [
+          123.675,
+          116.28,
+          103.53
+        ],
+        "std": [
+          58.395,
+          57.12,
+          57.375
+        ],
+        "to_rgb": true
+      },
+      {
+        "type": "Pad",
+        "size": {
+          "$tuple": [
+            832,
+            832
+          ]
+        },
+        "pad_val": 0,
+        "seg_pad_val": 255
+      },
+      {
+        "type": "ToMask"
+      },
+      {
+        "type": "DefaultFormatBundle"
+      },
+      {
+        "type": "Collect",
+        "keys": [
+          "img",
+          "gt_semantic_seg",
+          "gt_masks",
+          "gt_labels"
+        ]
+      }
+    ],
+    "shared_a05f7295d201": {
+      "type": "LandCoverDataset",
+      "data_root": "${AIC_DATA_ROOT}",
+      "img_dir": "images",
+      "ann_dir": "masks",
+      "split": "${AIC_PROJECT_ROOT}/splits/train.txt",
+      "pipeline": {
+        "$ref": "shared_263ca737c9d1"
+      }
+    },
+    "shared_c8ba80a286d1": {
+      "type": "TeacherScaleCrop",
+      "crop_size": {
+        "$tuple": [
+          832,
+          832
+        ]
+      },
+      "ratio_range": {
+        "$tuple": [
+          0.75,
+          1.5
+        ]
+      },
+      "full_image_prob": 0.35,
+      "barren_focus_prob": 0.5,
+      "barren_margin": 0.1,
+      "candidates": 8
+    },
+    "shared_74b6378c195d": [
+      {
+        "type": "LoadImageFromFile"
+      },
+      {
+        "type": "ReadTeacherDistribution",
+        "prob_dir": "${AIC_STAGE7_PSEUDO_ROOT}"
+      },
+      {
+        "$ref": "shared_c8ba80a286d1"
+      },
+      {
+        "type": "TeacherGeometry",
+        "rotate90_prob": 0.5,
+        "horizontal_prob": 0.5,
+        "vertical_prob": 0.5
+      },
+      {
+        "type": "PhotoMetricDistortion"
+      },
+      {
+        "type": "Normalize",
+        "mean": [
+          123.675,
+          116.28,
+          103.53
+        ],
+        "std": [
+          58.395,
+          57.12,
+          57.375
+        ],
+        "to_rgb": true
+      },
+      {
+        "type": "Pad",
+        "size": {
+          "$tuple": [
+            832,
+            832
+          ]
+        },
+        "pad_val": 0,
+        "seg_pad_val": 255
+      },
+      {
+        "type": "DefaultFormatBundle"
+      },
+      {
+        "type": "PackTeacherDistribution"
+      },
+      {
+        "type": "Collect",
+        "keys": [
+          "img",
+          "teacher_probs"
+        ]
+      }
+    ],
+    "shared_cba73af7753b": {
+      "type": "TeacherImageDataset",
+      "data_root": null,
+      "img_dir": "${AIC_TEST2_ROOT}",
+      "ann_dir": null,
+      "split": null,
+      "pipeline": {
+        "$ref": "shared_74b6378c195d"
+      }
+    }
+  },
+  "experiments": {
+    "foundation": {
+      "_base_": [
+        "../vendor/InternImage/segmentation/configs/ade20k/mask2former_internimage_h_896_80k_cocostuff2ade20k_ss.py"
+      ],
+      "custom_imports": {
+        "imports": [
+          "landcover.data.catalog",
+          "landcover.data.spatial",
+          "landcover.data.teacher_store",
+          "landcover.data.crop_sampling",
+          "landcover.training.policies",
+          "landcover.training.warm_start"
+        ],
+        "allow_failed_imports": false
+      },
+      "project_root": "${AIC_PROJECT_ROOT}",
+      "data_root": "${AIC_DATA_ROOT}",
+      "num_classes": 8,
+      "img_norm_cfg": {
+        "mean": [
+          123.675,
+          116.28,
+          103.53
+        ],
+        "std": [
+          58.395,
+          57.12,
+          57.375
+        ],
+        "to_rgb": true
+      },
+      "crop_size": {
+        "$tuple": [
+          640,
+          640
+        ]
+      },
+      "model": {
+        "backbone": {
+          "with_cp": true
+        },
+        "decode_head": {
+          "num_classes": 8,
+          "pixel_decoder": {
+            "encoder": {
+              "transformerlayers": {
+                "ffn_cfgs": {
+                  "with_cp": true
+                }
+              }
+            }
+          },
+          "transformer_decoder": {
+            "transformerlayers": {
+              "ffn_cfgs": {
+                "with_cp": true
+              }
+            }
+          },
+          "loss_cls": {
+            "class_weight": [
+              1.0,
+              1.0,
+              1.0,
+              1.0,
+              1.0,
+              1.0,
+              1.0,
+              1.0,
+              0.1
+            ]
+          }
+        },
+        "test_cfg": {
+          "mode": "whole"
+        }
+      },
+      "train_pipeline": {
+        "$ref": "shared_7d1772920c7d"
+      },
+      "test_pipeline": {
+        "$ref": "shared_f0edeb898a3a"
+      },
+      "dataset_type": "LandCoverDataset",
+      "data": {
+        "samples_per_gpu": 1,
+        "workers_per_gpu": 4,
+        "train": {
+          "_delete_": true,
+          "type": "LandCoverDataset",
+          "data_root": "${AIC_DATA_ROOT}",
+          "img_dir": "images",
+          "ann_dir": "masks",
+          "split": "${AIC_PROJECT_ROOT}/splits/train.txt",
+          "pipeline": {
+            "$ref": "shared_7d1772920c7d"
+          }
+        },
+        "val": {
+          "$ref": "shared_12b82277cf94"
+        },
+        "test": {
+          "$ref": "shared_12b82277cf94"
+        }
+      },
+      "load_from": null,
+      "resume_from": null,
+      "optimizer": {
+        "_delete_": true,
+        "type": "AdamW",
+        "lr": 1e-05,
+        "betas": {
+          "$tuple": [
+            0.9,
+            0.999
+          ]
+        },
+        "weight_decay": 0.05,
+        "constructor": "CustomLayerDecayOptimizerConstructor",
+        "paramwise_cfg": {
+          "num_layers": 50,
+          "layer_decay_rate": 0.95,
+          "depths": [
+            6,
+            6,
+            32,
+            6
+          ],
+          "offset_lr_scale": 1.0
+        }
+      },
+      "optimizer_config": {
+        "_delete_": true,
+        "grad_clip": {
+          "max_norm": 0.1,
+          "norm_type": 2
+        }
+      },
+      "fp16": {
+        "loss_scale": "dynamic"
+      },
+      "lr_config": {
+        "_delete_": true,
+        "policy": "poly",
+        "warmup": "linear",
+        "warmup_iters": 500,
+        "warmup_ratio": 1e-06,
+        "power": 1.0,
+        "min_lr": 0.0,
+        "by_epoch": false
+      },
+      "runner": {
+        "type": "IterBasedRunner",
+        "max_iters": 4000
+      },
+      "checkpoint_config": {
+        "by_epoch": false,
+        "interval": 1000,
+        "max_keep_ckpts": 1,
+        "save_optimizer": false
+      },
+      "evaluation": {
+        "interval": 1000,
+        "metric": "mIoU",
+        "pre_eval": true,
+        "save_best": "mIoU",
+        "rule": "greater"
+      },
+      "log_config": {
+        "interval": 20,
+        "hooks": [
+          {
+            "type": "TextLoggerHook",
+            "by_epoch": false
+          }
+        ]
+      },
+      "dist_params": {
+        "backend": "nccl"
+      },
+      "cudnn_benchmark": true,
+      "seed": 20260924,
+      "deterministic": false
+    },
+    "phase01_decoder": {
+      "_base_": [
+        "./foundation.py"
+      ],
+      "pretrained_checkpoint": "${AIC_PRETRAINED_CHECKPOINT}",
+      "model": {
+        "backbone": {
+          "frozen_stages": 4
+        }
+      },
+      "custom_hooks": [
+        {
+          "type": "LoadMatchingWeights",
+          "checkpoint": "${AIC_PRETRAINED_CHECKPOINT}",
+          "min_loaded_ratio": 0.95,
+          "priority": "VERY_HIGH"
+        },
+        {
+          "type": "ParametersOnlySaver",
+          "priority": "HIGH"
+        },
+        {
+          "type": "BackbonePolicy",
+          "trainable_levels": {
+            "$tuple": []
+          }
+        }
+      ],
+      "runner": {
+        "type": "IterBasedRunner",
+        "max_iters": 4000
+      },
+      "lr_config": {
+        "warmup_iters": 500
+      },
+      "work_dir": "${AIC_WORK_ROOT}/internimage_h_m2f_stage1"
+    },
+    "phase02_deep_level": {
+      "_base_": [
+        "./foundation.py"
+      ],
+      "model": {
+        "backbone": {
+          "frozen_stages": 3
+        }
+      },
+      "custom_hooks": [
+        {
+          "type": "ParametersOnlySaver",
+          "priority": "HIGH"
+        },
+        {
+          "type": "BackbonePolicy",
+          "trainable_levels": {
+            "$tuple": [
+              3
+            ]
+          }
+        }
+      ],
+      "load_from": null,
+      "optimizer": {
+        "lr": 5e-06
+      },
+      "runner": {
+        "type": "IterBasedRunner",
+        "max_iters": 3000
+      },
+      "lr_config": {
+        "warmup_iters": 300
+      },
+      "checkpoint_config": {
+        "interval": 750
+      },
+      "evaluation": {
+        "interval": 750
+      },
+      "work_dir": "${AIC_WORK_ROOT}/internimage_h_m2f_stage2"
+    },
+    "phase03_upper_levels": {
+      "_base_": [
+        "./foundation.py"
+      ],
+      "crop_size": {
+        "$tuple": [
+          768,
+          768
+        ]
+      },
+      "img_norm_cfg": {
+        "mean": [
+          123.675,
+          116.28,
+          103.53
+        ],
+        "std": [
+          58.395,
+          57.12,
+          57.375
+        ],
+        "to_rgb": true
+      },
+      "train_pipeline": {
+        "$ref": "shared_a7aec166257c"
+      },
+      "data": {
+        "train": {
+          "pipeline": {
+            "$ref": "shared_a7aec166257c"
+          }
+        }
+      },
+      "model": {
+        "backbone": {
+          "frozen_stages": 2
+        }
+      },
+      "custom_hooks": [
+        {
+          "type": "ParametersOnlySaver",
+          "priority": "HIGH"
+        },
+        {
+          "type": "BackbonePolicy",
+          "trainable_levels": {
+            "$tuple": [
+              2,
+              3
+            ]
+          }
+        }
+      ],
+      "load_from": null,
+      "optimizer": {
+        "lr": 2e-06
+      },
+      "runner": {
+        "type": "IterBasedRunner",
+        "max_iters": 2500
+      },
+      "lr_config": {
+        "warmup_iters": 250
+      },
+      "checkpoint_config": {
+        "interval": 500
+      },
+      "evaluation": {
+        "interval": 500
+      },
+      "work_dir": "${AIC_WORK_ROOT}/internimage_h_m2f_stage3"
+    },
+    "phase04_consolidation": {
+      "_base_": [
+        "./phase03_upper_levels.py"
+      ],
+      "iters_per_epoch": 6296,
+      "max_epochs": 30,
+      "optimizer": {
+        "lr": 1e-06
+      },
+      "runner": {
+        "type": "IterBasedRunner",
+        "max_iters": 188880
+      },
+      "lr_config": {
+        "warmup_iters": 250
+      },
+      "checkpoint_config": {
+        "interval": 6296,
+        "max_keep_ckpts": 1
+      },
+      "evaluation": {
+        "interval": 6296
+      },
+      "work_dir": "${AIC_WORK_ROOT}/internimage_h_m2f_stage4_30e"
+    },
+    "balanced_average": {
+      "_base_": [
+        "./phase03_upper_levels.py"
+      ],
+      "max_epochs": 12,
+      "balanced_query_class_weight": [
+        0.75,
+        0.85,
+        1.0,
+        1.0,
+        1.75,
+        0.75,
+        1.0,
+        1.25,
+        0.1
+      ],
+      "model": {
+        "backbone": {
+          "frozen_stages": 2
+        },
+        "decode_head": {
+          "loss_cls": {
+            "class_weight": [
+              0.75,
+              0.85,
+              1.0,
+              1.0,
+              1.75,
+              0.75,
+              1.0,
+              1.25,
+              0.1
+            ]
+          }
+        }
+      },
+      "optimizer": {
+        "lr": 5e-07
+      },
+      "runner": {
+        "_delete_": true,
+        "type": "EpochBasedRunner",
+        "max_epochs": 12
+      },
+      "lr_config": {
+        "warmup_iters": 250
+      },
+      "custom_hooks": {
+        "$ref": "shared_0002b288b7bb"
+      },
+      "checkpoint_config": {
+        "by_epoch": true,
+        "interval": 1,
+        "max_keep_ckpts": 1,
+        "save_optimizer": false
+      },
+      "evaluation": {
+        "by_epoch": true,
+        "interval": 1,
+        "metric": "mIoU",
+        "pre_eval": true,
+        "save_best": "mIoU",
+        "rule": "greater"
+      },
+      "work_dir": "${AIC_WORK_ROOT}/internimage_h_m2f_stage5_combo_cbce_ema_12e"
+    },
+    "prediction_calibrated": {
+      "_base_": [
+        "./balanced_average.py"
+      ],
+      "custom_imports": {
+        "imports": [
+          "landcover.data.catalog",
+          "landcover.data.spatial",
+          "landcover.data.teacher_store",
+          "landcover.data.crop_sampling",
+          "landcover.training.policies",
+          "landcover.training.warm_start",
+          "landcover.models.window_fusion"
+        ],
+        "allow_failed_imports": false
+      },
+      "img_norm_cfg": {
+        "mean": [
+          123.675,
+          116.28,
+          103.53
+        ],
+        "std": [
+          58.395,
+          57.12,
+          57.375
+        ],
+        "to_rgb": true
+      },
+      "test_pipeline": {
+        "$ref": "shared_efdda9c58812"
+      },
+      "model": {
+        "type": "WindowFusionMask2Former",
+        "barren_multiplier": 2.5,
+        "hann_minimum": 0.125,
+        "test_cfg": {
+          "mode": "slide",
+          "crop_size": {
+            "$tuple": [
+              768,
+              768
+            ]
+          },
+          "stride": {
+            "$tuple": [
+              512,
+              512
+            ]
+          }
+        }
+      },
+      "data": {
+        "val": {
+          "$ref": "shared_cdcadea136ff"
+        },
+        "test": {
+          "$ref": "shared_cdcadea136ff"
+        }
+      }
+    },
+    "teacher_adaptation": {
+      "_base_": [
+        "./balanced_average.py"
+      ],
+      "project_root": "${AIC_PROJECT_ROOT}",
+      "data_root": "${AIC_DATA_ROOT}",
+      "test2_root": "${AIC_TEST2_ROOT}",
+      "pseudo_root": "${AIC_PSEUDO_PROB_ROOT}",
+      "custom_imports": {
+        "$ref": "shared_f0d081899da6"
+      },
+      "img_norm_cfg": {
+        "mean": [
+          123.675,
+          116.28,
+          103.53
+        ],
+        "std": [
+          58.395,
+          57.12,
+          57.375
+        ],
+        "to_rgb": true
+      },
+      "crop_size": {
+        "$tuple": [
+          768,
+          768
+        ]
+      },
+      "source_pipeline": {
+        "$ref": "shared_a7aec166257c"
+      },
+      "target_pipeline": {
+        "$ref": "shared_25e0151eac5d"
+      },
+      "source_train": {
+        "$ref": "shared_bddc999a5fe4"
+      },
+      "target_train": {
+        "$ref": "shared_ee4970b8caae"
+      },
+      "data": {
+        "train": [
+          {
+            "$ref": "shared_bddc999a5fe4"
+          },
+          {
+            "$ref": "shared_ee4970b8caae"
+          }
+        ]
+      },
+      "model": {
+        "type": "TeacherGuidedMask2Former",
+        "pseudo_cfg": {
+          "accept_threshold": 0.9,
+          "reject_floor": 0.5,
+          "hard_weight": 0.5,
+          "kl_weight": 0.25,
+          "class_weight": [
+            0.75,
+            0.85,
+            1.0,
+            1.0,
+            1.75,
+            0.75,
+            1.0,
+            1.25
+          ]
+        }
+      },
+      "runner": {
+        "_delete_": true,
+        "type": "EpochBasedRunner",
+        "max_epochs": 12
+      },
+      "work_dir": "${AIC_WORK_ROOT}/internimage_h_m2f_stage5_final_cbce_ema_hk_12e"
+    },
+    "phase05_teacher_ema999": {
+      "__doc__": "Stage5 reproduction with the requested EMA decay 0.999.\n\nAll inherited data, augmentation, loss, optimizer, runner, and evaluation\nsettings are kept unchanged. MMCV's EMAHook takes momentum, where\ndecay = 1 - momentum, so decay 0.999 requires momentum 0.001.\n",
+      "_base_": [
+        "./teacher_adaptation.py"
+      ],
+      "custom_hooks": [
+        {
+          "type": "ParametersOnlySaver",
+          "priority": "HIGH"
+        },
+        {
+          "type": "BackbonePolicy",
+          "trainable_levels": {
+            "$tuple": [
+              2,
+              3
+            ]
+          }
+        },
+        {
+          "type": "EMAHook",
+          "momentum": 0.001,
+          "interval": 1,
+          "warm_up": 250
+        }
+      ],
+      "work_dir": "${AIC_WORK_ROOT}/internimage_h_m2f_stage5_final_cbce_ema_hk_12e_ema0999"
+    },
+    "teacher_sixview": {
+      "_base_": [
+        "./phase04_consolidation.py"
+      ],
+      "img_norm_cfg": {
+        "mean": [
+          123.675,
+          116.28,
+          103.53
+        ],
+        "std": [
+          58.395,
+          57.12,
+          57.375
+        ],
+        "to_rgb": true
+      },
+      "test_pipeline": {
+        "$ref": "shared_3f00a22c178f"
+      },
+      "model": {
+        "test_cfg": {
+          "mode": "whole"
+        }
+      },
+      "data": {
+        "val": {
+          "$ref": "shared_3e7489736f29"
+        },
+        "test": {
+          "$ref": "shared_3e7489736f29"
+        }
+      }
+    },
+    "phase06_detail_sampling": {
+      "__doc__": "Stage6 single-teacher target adaptation with native-resolution crops.\n\nThe teacher is the frozen Stage5 checkpoint itself. No Stage4/Stage5 score\nfusion is used, so the resulting checkpoint remains a single submitted model.\n",
+      "_base_": [
+        "./balanced_average.py"
+      ],
+      "project_root": "${AIC_PROJECT_ROOT}",
+      "data_root": "${AIC_DATA_ROOT}",
+      "test2_root": "${AIC_TEST2_ROOT}",
+      "pseudo_root": "${AIC_PSEUDO_PROB_ROOT__VARIANT_1}",
+      "custom_imports": {
+        "$ref": "shared_f0d081899da6"
+      },
+      "img_norm_cfg": {
+        "mean": [
+          123.675,
+          116.28,
+          103.53
+        ],
+        "std": [
+          58.395,
+          57.12,
+          57.375
+        ],
+        "to_rgb": true
+      },
+      "crop_size": {
+        "$tuple": [
+          768,
+          768
+        ]
+      },
+      "source_pipeline": {
+        "$ref": "shared_a7aec166257c"
+      },
+      "target_pipeline": {
+        "$ref": "shared_b5c17c023ebb"
+      },
+      "source_train": {
+        "$ref": "shared_bddc999a5fe4"
+      },
+      "target_train": {
+        "$ref": "shared_23c917f2850c"
+      },
+      "data": {
+        "train": [
+          {
+            "$ref": "shared_bddc999a5fe4"
+          },
+          {
+            "$ref": "shared_23c917f2850c"
+          }
+        ]
+      },
+      "balanced_query_class_weight": [
+        0.75,
+        0.85,
+        1.0,
+        1.0,
+        1.25,
+        0.75,
+        1.0,
+        1.25,
+        0.1
+      ],
+      "model": {
+        "type": "TeacherGuidedMask2Former",
+        "decode_head": {
+          "loss_cls": {
+            "class_weight": [
+              0.75,
+              0.85,
+              1.0,
+              1.0,
+              1.25,
+              0.75,
+              1.0,
+              1.25,
+              0.1
+            ]
+          }
+        },
+        "pseudo_cfg": {
+          "accept_threshold": 0.9,
+          "reject_floor": 0.5,
+          "hard_weight": 0.5,
+          "kl_weight": 0.25,
+          "class_weight": [
+            0.75,
+            0.85,
+            1.0,
+            1.0,
+            1.25,
+            0.75,
+            1.0,
+            1.25
+          ]
+        }
+      },
+      "optimizer": {
+        "lr": 3e-07
+      },
+      "runner": {
+        "_delete_": true,
+        "type": "EpochBasedRunner",
+        "max_epochs": 6
+      },
+      "lr_config": {
+        "warmup_iters": 150
+      },
+      "work_dir": "${AIC_WORK_ROOT}/internimage_h_m2f_stage6_single_teacher_native_crop_6e"
+    },
+    "phase07_teacher_refresh": {
+      "num_things_classes": 100,
+      "num_stuff_classes": 50,
+      "num_classes": 8,
+      "norm_cfg": {
+        "type": "SyncBN",
+        "requires_grad": true
+      },
+      "model": {
+        "type": "TeacherGuidedMask2Former",
+        "pretrained": null,
+        "backbone": {
+          "$ref": "shared_fa606ee49853"
+        },
+        "decode_head": {
+          "$ref": "shared_8e7635861375"
+        },
+        "train_cfg": {
+          "$ref": "shared_f4f800790c1b"
+        },
+        "test_cfg": {
+          "panoptic_on": true,
+          "semantic_on": false,
+          "instance_on": true,
+          "max_per_image": 100,
+          "iou_thr": 0.8,
+          "filter_low_score": true,
+          "mode": "whole"
+        },
+        "init_cfg": null,
+        "pseudo_cfg": {
+          "accept_threshold": [
+            0.8,
+            0.8,
+            0.8,
+            0.8,
+            0.8,
+            0.8,
+            0.8,
+            0.8
+          ],
+          "reject_floor": 0.5,
+          "hard_weight": 0.5,
+          "kl_weight": 0.25,
+          "class_weight": [
+            0.75,
+            0.85,
+            1.0,
+            1.0,
+            1.25,
+            0.75,
+            1.0,
+            1.25
+          ]
+        }
+      },
+      "dataset_type": "LandCoverDataset",
+      "data_root": "${AIC_DATA_ROOT}",
+      "img_norm_cfg": {
+        "mean": [
+          123.675,
+          116.28,
+          103.53
+        ],
+        "std": [
+          58.395,
+          57.12,
+          57.375
+        ],
+        "to_rgb": true
+      },
+      "crop_size": {
+        "$tuple": [
+          768,
+          768
+        ]
+      },
+      "train_pipeline": {
+        "$ref": "shared_a7aec166257c"
+      },
+      "test_pipeline": {
+        "$ref": "shared_f0edeb898a3a"
+      },
+      "data": {
+        "samples_per_gpu": 1,
+        "workers_per_gpu": 4,
+        "train": [
+          {
+            "$ref": "shared_bf5c5bf5fb78"
+          },
+          {
+            "type": "TeacherImageDataset",
+            "data_root": null,
+            "img_dir": "${AIC_TEST2_ROOT}",
+            "ann_dir": null,
+            "split": null,
+            "pipeline": [
+              {
+                "type": "LoadImageFromFile"
+              },
+              {
+                "type": "ReadTeacherDistribution",
+                "prob_dir": "${AIC_PSEUDO_PROB_ROOT__VARIANT_1}"
+              },
+              {
+                "$ref": "shared_ca9ad0eb0d36"
+              },
+              {
+                "type": "TeacherGeometry",
+                "rotate90_prob": 0.5,
+                "horizontal_prob": 0.5,
+                "vertical_prob": 0.5
+              },
+              {
+                "type": "PhotoMetricDistortion"
+              },
+              {
+                "type": "Normalize",
+                "mean": [
+                  123.675,
+                  116.28,
+                  103.53
+                ],
+                "std": [
+                  58.395,
+                  57.12,
+                  57.375
+                ],
+                "to_rgb": true
+              },
+              {
+                "type": "Pad",
+                "size": {
+                  "$tuple": [
+                    768,
+                    768
+                  ]
+                },
+                "pad_val": 0,
+                "seg_pad_val": 255
+              },
+              {
+                "type": "DefaultFormatBundle"
+              },
+              {
+                "type": "PackTeacherDistribution"
+              },
+              {
+                "type": "Collect",
+                "keys": [
+                  "img",
+                  "teacher_probs"
+                ]
+              }
+            ]
+          }
+        ],
+        "val": {
+          "$ref": "shared_5e542729ce85"
+        },
+        "test": {
+          "$ref": "shared_cbc4ccccf779"
+        }
+      },
+      "log_config": {
+        "interval": 20,
+        "hooks": [
+          {
+            "type": "TextLoggerHook",
+            "by_epoch": false
+          }
+        ]
+      },
+      "dist_params": {
+        "backend": "nccl"
+      },
+      "log_level": "INFO",
+      "load_from": "${AIC_STAGE6_CHECKPOINT}",
+      "resume_from": null,
+      "workflow": [
+        {
+          "$tuple": [
+            "train",
+            1
+          ]
+        }
+      ],
+      "cudnn_benchmark": true,
+      "optimizer": {
+        "$ref": "shared_33b85e3b8ddf"
+      },
+      "optimizer_config": {
+        "grad_clip": {
+          "max_norm": 0.1,
+          "norm_type": 2
+        }
+      },
+      "lr_config": {
+        "policy": "poly",
+        "warmup": "linear",
+        "warmup_iters": 150,
+        "warmup_ratio": 1e-06,
+        "power": 1.0,
+        "min_lr": 0.0,
+        "by_epoch": false
+      },
+      "runner": {
+        "type": "EpochBasedRunner",
+        "max_epochs": 10
+      },
+      "checkpoint_config": {
+        "by_epoch": true,
+        "interval": 1,
+        "max_keep_ckpts": 1,
+        "save_optimizer": false
+      },
+      "evaluation": {
+        "by_epoch": true,
+        "interval": 1,
+        "metric": "mIoU",
+        "pre_eval": true,
+        "save_best": "mIoU",
+        "rule": "greater"
+      },
+      "custom_imports": {
+        "$ref": "shared_f0d081899da6"
+      },
+      "project_root": "${AIC_PROJECT_ROOT}",
+      "fp16": {
+        "loss_scale": "dynamic"
+      },
+      "seed": 20260924,
+      "deterministic": false,
+      "custom_hooks": {
+        "$ref": "shared_0002b288b7bb"
+      },
+      "work_dir": "${AIC_WORK_ROOT}/internimage_h_m2f_stage7_teacher_refresh_768_epoch10_patience3",
+      "max_epochs": 12,
+      "balanced_query_class_weight": [
+        0.75,
+        0.85,
+        1.0,
+        1.0,
+        1.25,
+        0.75,
+        1.0,
+        1.25,
+        0.1
+      ],
+      "test2_root": "${AIC_TEST2_ROOT}",
+      "pseudo_root": "${AIC_PSEUDO_PROB_ROOT__VARIANT_1}",
+      "source_pipeline": {
+        "$ref": "shared_a7aec166257c"
+      },
+      "target_pipeline": {
+        "$ref": "shared_4b06c35366e1"
+      },
+      "source_train": {
+        "$ref": "shared_bf5c5bf5fb78"
+      },
+      "target_train": {
+        "type": "TeacherImageDataset",
+        "data_root": null,
+        "img_dir": "${AIC_TEST2_ROOT}",
+        "ann_dir": null,
+        "split": null,
+        "pipeline": {
+          "$ref": "shared_4b06c35366e1"
+        }
+      }
+    },
+    "phase08_large_crop": {
+      "num_things_classes": 100,
+      "num_stuff_classes": 50,
+      "num_classes": 8,
+      "norm_cfg": {
+        "type": "SyncBN",
+        "requires_grad": true
+      },
+      "model": {
+        "type": "TeacherGuidedMask2Former",
+        "pretrained": null,
+        "backbone": {
+          "$ref": "shared_fa606ee49853"
+        },
+        "decode_head": {
+          "$ref": "shared_8e7635861375"
+        },
+        "train_cfg": {
+          "$ref": "shared_f4f800790c1b"
+        },
+        "test_cfg": {
+          "panoptic_on": true,
+          "semantic_on": false,
+          "instance_on": true,
+          "max_per_image": 100,
+          "iou_thr": 0.8,
+          "filter_low_score": true,
+          "mode": "whole"
+        },
+        "init_cfg": null,
+        "pseudo_cfg": {
+          "accept_threshold": [
+            0.8,
+            0.8,
+            0.8,
+            0.8,
+            0.8,
+            0.8,
+            0.8,
+            0.8
+          ],
+          "reject_floor": 0.55,
+          "hard_weight": 0.5,
+          "kl_weight": 0.15,
+          "class_weight": [
+            0.75,
+            0.85,
+            1.0,
+            1.0,
+            1.25,
+            0.75,
+            1.0,
+            1.25
+          ]
+        }
+      },
+      "dataset_type": "LandCoverDataset",
+      "data_root": "${AIC_DATA_ROOT}",
+      "img_norm_cfg": {
+        "mean": [
+          123.675,
+          116.28,
+          103.53
+        ],
+        "std": [
+          58.395,
+          57.12,
+          57.375
+        ],
+        "to_rgb": true
+      },
+      "crop_size": {
+        "$tuple": [
+          832,
+          832
+        ]
+      },
+      "train_pipeline": {
+        "$ref": "shared_263ca737c9d1"
+      },
+      "test_pipeline": {
+        "$ref": "shared_f0edeb898a3a"
+      },
+      "data": {
+        "samples_per_gpu": 2,
+        "workers_per_gpu": 8,
+        "train": [
+          {
+            "$ref": "shared_a05f7295d201"
+          },
+          {
+            "$ref": "shared_cba73af7753b"
+          }
+        ],
+        "val": {
+          "$ref": "shared_5e542729ce85"
+        },
+        "test": {
+          "$ref": "shared_cbc4ccccf779"
+        }
+      },
+      "log_config": {
+        "interval": 20,
+        "hooks": [
+          {
+            "type": "TextLoggerHook",
+            "by_epoch": false
+          }
+        ]
+      },
+      "dist_params": {
+        "backend": "nccl"
+      },
+      "log_level": "INFO",
+      "load_from": "${AIC_STAGE7_CHECKPOINT}",
+      "resume_from": null,
+      "workflow": [
+        {
+          "$tuple": [
+            "train",
+            1
+          ]
+        }
+      ],
+      "cudnn_benchmark": true,
+      "optimizer": {
+        "$ref": "shared_33b85e3b8ddf"
+      },
+      "optimizer_config": {
+        "grad_clip": {
+          "max_norm": 0.1,
+          "norm_type": 2
+        }
+      },
+      "lr_config": {
+        "policy": "poly",
+        "warmup": "linear",
+        "warmup_iters": 150,
+        "warmup_ratio": 1e-06,
+        "power": 1.0,
+        "min_lr": 0.0,
+        "by_epoch": false
+      },
+      "runner": {
+        "type": "EpochBasedRunner",
+        "max_epochs": 4
+      },
+      "checkpoint_config": {
+        "by_epoch": true,
+        "interval": 1,
+        "max_keep_ckpts": 1,
+        "save_optimizer": false
+      },
+      "evaluation": {
+        "by_epoch": true,
+        "interval": 1,
+        "metric": "mIoU",
+        "pre_eval": true,
+        "save_best": "mIoU",
+        "rule": "greater"
+      },
+      "custom_imports": {
+        "$ref": "shared_f0d081899da6"
+      },
+      "project_root": "${AIC_PROJECT_ROOT}",
+      "fp16": {
+        "loss_scale": "dynamic"
+      },
+      "seed": 20260924,
+      "deterministic": false,
+      "custom_hooks": {
+        "$ref": "shared_0002b288b7bb"
+      },
+      "work_dir": "${AIC_WORK_ROOT}/internimage_h_m2f_stage8_refresh_stage7_832_b32",
+      "max_epochs": 4,
+      "balanced_query_class_weight": [
+        0.75,
+        0.85,
+        1.0,
+        1.0,
+        1.25,
+        0.75,
+        1.0,
+        1.25,
+        0.1
+      ],
+      "test2_root": "${AIC_TEST2_ROOT}",
+      "pseudo_root": "${AIC_STAGE7_PSEUDO_ROOT}",
+      "source_pipeline": {
+        "$ref": "shared_263ca737c9d1"
+      },
+      "target_pipeline": {
+        "$ref": "shared_74b6378c195d"
+      },
+      "source_train": {
+        "$ref": "shared_a05f7295d201"
+      },
+      "target_train": {
+        "$ref": "shared_cba73af7753b"
+      }
+    },
+    "prediction_sixview": {
+      "_base_": [
+        "./prediction_calibrated.py"
+      ],
+      "model": {
+        "barren_multiplier": 1.0
+      }
+    }
+  }
+}

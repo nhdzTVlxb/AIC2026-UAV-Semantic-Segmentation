@@ -1,0 +1,660 @@
+{
+  "derive_experiment": [
+    {
+      "names": [
+        "--base-config"
+      ],
+      "options": {
+        "type": "Path",
+        "required": true
+      }
+    },
+    {
+      "names": [
+        "--output"
+      ],
+      "options": {
+        "type": "Path",
+        "required": true
+      }
+    },
+    {
+      "names": [
+        "--work-dir"
+      ],
+      "options": {
+        "type": "Path",
+        "required": true
+      }
+    },
+    {
+      "names": [
+        "--load-from"
+      ],
+      "options": {
+        "type": "Path",
+        "required": true
+      }
+    },
+    {
+      "names": [
+        "--pseudo-root"
+      ],
+      "options": {
+        "type": "Path",
+        "required": true
+      }
+    },
+    {
+      "names": [
+        "--crop-size"
+      ],
+      "options": {
+        "type": "int",
+        "required": true
+      }
+    },
+    {
+      "names": [
+        "--lr"
+      ],
+      "options": {
+        "type": "float",
+        "default": 1e-07
+      }
+    },
+    {
+      "names": [
+        "--max-epochs"
+      ],
+      "options": {
+        "type": "int",
+        "default": 10
+      }
+    },
+    {
+      "names": [
+        "--val-split"
+      ],
+      "options": {
+        "type": "Path"
+      }
+    },
+    {
+      "names": [
+        "--accept-thresholds"
+      ],
+      "options": {}
+    },
+    {
+      "names": [
+        "--threshold-report"
+      ],
+      "options": {
+        "type": "Path"
+      }
+    },
+    {
+      "names": [
+        "--reject-floor"
+      ],
+      "options": {
+        "type": "float",
+        "default": 0.5
+      }
+    },
+    {
+      "names": [
+        "--one-iter-smoke"
+      ],
+      "options": {
+        "action": "store_true"
+      }
+    }
+  ],
+  "fit_confidence_limits": [
+    {
+      "names": [
+        "--prob-dir"
+      ],
+      "options": {
+        "type": "Path",
+        "required": true
+      }
+    },
+    {
+      "names": [
+        "--ids-file"
+      ],
+      "options": {
+        "type": "Path",
+        "required": true
+      }
+    },
+    {
+      "names": [
+        "--mask-dir"
+      ],
+      "options": {
+        "type": "Path",
+        "required": true
+      }
+    },
+    {
+      "names": [
+        "--output"
+      ],
+      "options": {
+        "type": "Path",
+        "required": true
+      }
+    },
+    {
+      "names": [
+        "--target-precision"
+      ],
+      "options": {
+        "type": "float",
+        "default": 0.92
+      }
+    },
+    {
+      "names": [
+        "--min-pixels"
+      ],
+      "options": {
+        "type": "int",
+        "default": 5000
+      }
+    },
+    {
+      "names": [
+        "--min-threshold"
+      ],
+      "options": {
+        "type": "float",
+        "default": 0.8
+      }
+    },
+    {
+      "names": [
+        "--fallback-threshold"
+      ],
+      "options": {
+        "type": "float",
+        "default": 0.9
+      }
+    }
+  ],
+  "score_holdout": [
+    {
+      "names": [
+        "--config"
+      ],
+      "options": {
+        "type": "Path",
+        "required": true
+      }
+    },
+    {
+      "names": [
+        "--checkpoint"
+      ],
+      "options": {
+        "type": "Path",
+        "required": true
+      }
+    },
+    {
+      "names": [
+        "--output"
+      ],
+      "options": {
+        "type": "Path",
+        "required": true
+      }
+    }
+  ],
+  "export_average": [
+    {
+      "names": [
+        "input"
+      ],
+      "options": {
+        "type": "Path"
+      }
+    },
+    {
+      "names": [
+        "output"
+      ],
+      "options": {
+        "type": "Path"
+      }
+    },
+    {
+      "names": [
+        "--ema-decay"
+      ],
+      "options": {
+        "type": "float",
+        "default": 0.995
+      }
+    }
+  ],
+  "write_teacher": [
+    {
+      "names": [
+        "--config"
+      ],
+      "options": {
+        "type": "Path",
+        "default": {
+          "$path": {
+            "base": "checkout",
+            "parts": [
+              "experiments",
+              "teacher_sixview.py"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "names": [
+        "--checkpoint"
+      ],
+      "options": {
+        "type": "Path",
+        "required": true
+      }
+    },
+    {
+      "names": [
+        "--test-dir"
+      ],
+      "options": {
+        "type": "Path",
+        "default": {
+          "$path": {
+            "base": "parent",
+            "parts": [
+              "test_2",
+              "images"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "names": [
+        "--output-dir"
+      ],
+      "options": {
+        "type": "Path",
+        "required": true
+      }
+    },
+    {
+      "names": [
+        "--expected-count"
+      ],
+      "options": {
+        "type": "int",
+        "default": 1300
+      }
+    },
+    {
+      "names": [
+        "--limit"
+      ],
+      "options": {
+        "type": "int",
+        "default": null,
+        "help": "optional leading-image limit for smoke tests"
+      }
+    },
+    {
+      "names": [
+        "--barren-multiplier"
+      ],
+      "options": {
+        "type": "float",
+        "default": 2.5
+      }
+    },
+    {
+      "names": [
+        "--device"
+      ],
+      "options": {
+        "default": "cuda:0"
+      }
+    }
+  ],
+  "write_teacher_batches": [
+    {
+      "names": [
+        "--config"
+      ],
+      "options": {
+        "type": "Path",
+        "required": true
+      }
+    },
+    {
+      "names": [
+        "--checkpoint"
+      ],
+      "options": {
+        "type": "Path",
+        "required": true
+      }
+    },
+    {
+      "names": [
+        "--test-dir"
+      ],
+      "options": {
+        "type": "Path",
+        "required": true
+      }
+    },
+    {
+      "names": [
+        "--output-dir"
+      ],
+      "options": {
+        "type": "Path",
+        "required": true
+      }
+    },
+    {
+      "names": [
+        "--expected-count"
+      ],
+      "options": {
+        "type": "int",
+        "default": 1300
+      }
+    },
+    {
+      "names": [
+        "--batch-size"
+      ],
+      "options": {
+        "type": "int",
+        "default": 4
+      }
+    },
+    {
+      "names": [
+        "--limit"
+      ],
+      "options": {
+        "type": "int",
+        "default": null
+      }
+    },
+    {
+      "names": [
+        "--barren-multiplier"
+      ],
+      "options": {
+        "type": "float",
+        "default": 1.0
+      }
+    },
+    {
+      "names": [
+        "--device"
+      ],
+      "options": {
+        "default": "cuda:0"
+      }
+    }
+  ],
+  "sixview_predict": [
+    {
+      "names": [
+        "--config"
+      ],
+      "options": {
+        "required": true
+      }
+    },
+    {
+      "names": [
+        "--checkpoint"
+      ],
+      "options": {
+        "required": true
+      }
+    },
+    {
+      "names": [
+        "--original-checkpoint"
+      ],
+      "options": {
+        "required": true
+      }
+    },
+    {
+      "names": [
+        "--test-dir"
+      ],
+      "options": {
+        "required": true
+      }
+    },
+    {
+      "names": [
+        "--output-root"
+      ],
+      "options": {
+        "required": true
+      }
+    }
+  ],
+  "seal_submission": [
+    {
+      "names": [
+        "--prediction-dir"
+      ],
+      "options": {
+        "type": "Path",
+        "default": {
+          "$path": {
+            "base": "checkout",
+            "parts": [
+              "submission",
+              "test2_predictions"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "names": [
+        "--test-dir"
+      ],
+      "options": {
+        "type": "Path",
+        "default": {
+          "$path": {
+            "base": "parent",
+            "parts": [
+              "test_2",
+              "images"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "names": [
+        "--output"
+      ],
+      "options": {
+        "type": "Path",
+        "default": {
+          "$path": {
+            "base": "checkout",
+            "parts": [
+              "submission",
+              "stage8_refresh_stage7_832_best_p1_test2.zip"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "names": [
+        "--expected-count"
+      ],
+      "options": {
+        "type": "int",
+        "default": 1300
+      }
+    },
+    {
+      "names": [
+        "--checkpoint"
+      ],
+      "options": {
+        "type": "Path"
+      }
+    }
+  ],
+  "partition_holdout": [
+    {
+      "names": [
+        "--project-root"
+      ],
+      "options": {
+        "type": "Path",
+        "required": true
+      }
+    },
+    {
+      "names": [
+        "--data-root"
+      ],
+      "options": {
+        "type": "Path",
+        "required": true
+      }
+    },
+    {
+      "names": [
+        "--val-split"
+      ],
+      "options": {
+        "type": "Path",
+        "required": true
+      }
+    },
+    {
+      "names": [
+        "--output-root"
+      ],
+      "options": {
+        "type": "Path",
+        "required": true
+      }
+    }
+  ],
+  "inspect_teacher": [
+    {
+      "names": [
+        "--prob-dir"
+      ],
+      "options": {
+        "type": "Path",
+        "required": true
+      }
+    },
+    {
+      "names": [
+        "--report"
+      ],
+      "options": {
+        "type": "Path",
+        "required": true
+      }
+    },
+    {
+      "names": [
+        "--expected-count"
+      ],
+      "options": {
+        "type": "int",
+        "default": 1300
+      }
+    },
+    {
+      "names": [
+        "--checkpoint-sha256"
+      ],
+      "options": {
+        "required": true
+      }
+    }
+  ],
+  "monitor_plateau": [
+    {
+      "names": [
+        "--work-dir"
+      ],
+      "options": {
+        "type": "Path",
+        "required": true
+      }
+    },
+    {
+      "names": [
+        "--pid"
+      ],
+      "options": {
+        "type": "int",
+        "required": true
+      }
+    },
+    {
+      "names": [
+        "--baseline"
+      ],
+      "options": {
+        "type": "float",
+        "required": true
+      }
+    },
+    {
+      "names": [
+        "--patience"
+      ],
+      "options": {
+        "type": "int",
+        "default": 2
+      }
+    },
+    {
+      "names": [
+        "--min-delta"
+      ],
+      "options": {
+        "type": "float",
+        "default": 0.0001
+      }
+    },
+    {
+      "names": [
+        "--poll-seconds"
+      ],
+      "options": {
+        "type": "float",
+        "default": 15.0
+      }
+    }
+  ]
+}
