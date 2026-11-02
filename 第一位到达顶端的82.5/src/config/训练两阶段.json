@@ -1,0 +1,7 @@
+{
+  "owner_team": "aic3",
+  "stages": [
+    "vehicle_alignment",
+    "pyramid_joint"
+  ]
+}

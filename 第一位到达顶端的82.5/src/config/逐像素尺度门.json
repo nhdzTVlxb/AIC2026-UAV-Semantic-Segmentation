@@ -1,0 +1,87 @@
+{
+  "team": "aic3",
+  "public_prior": "MTP InternImage-XL LoveDA trainval task initialization",
+  "initialization_sha256": "f3ce777e1f1192bc9f20ee5a9720bfd95edab60fa80462c83cc76c94c1ad8fce",
+  "single_model": true,
+  "weight_averaging": false,
+  "training_pairs": 6996,
+  "max_lineage_steps": 20000,
+  "stages": [
+    {
+      "id": "vehicle_alignment",
+      "steps": 400,
+      "crop": 512,
+      "global_batch": 16,
+      "seed": 820201,
+      "backbone_lr": 0,
+      "decoder_lr": 0,
+      "new_lr": 0.0006,
+      "warmup": 35
+    },
+    {
+      "id": "pyramid_joint",
+      "steps": 1400,
+      "crop": 704,
+      "global_batch": 16,
+      "seed": 820202,
+      "backbone_lr": 1.8e-05,
+      "decoder_lr": 7.5e-05,
+      "new_lr": 0.00022,
+      "warmup": 100
+    }
+  ],
+  "loss": {
+    "background_ce_weight": 1.1,
+    "lovasz": 0.5,
+    "deep_scale_ce": 0.12
+  },
+  "optimizer": {
+    "name": "AdamW",
+    "weight_decay": 0.035,
+    "layer_decay": 0.94,
+    "gradient_clip": 1.0
+  },
+  "inference": {
+    "window": 704,
+    "stride": 320,
+    "horizontal_flip": true,
+    "tile_batch": 4,
+    "reduction": "single_checkpoint_probability_mean_Gaussian_sigma0.38_min0.10",
+    "class_bias": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    "adaptive": true,
+    "checkpoints_used": 1,
+    "scales": [
+      0.75,
+      1.0,
+      1.25
+    ],
+    "class_multipliers": [
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1
+    ]
+  },
+  "execution": {
+    "logical_partitions": 2,
+    "partition_batch": 4,
+    "single_device_accumulation": 2,
+    "supported_device_counts": [
+      1,
+      2
+    ]
+  }
+}
