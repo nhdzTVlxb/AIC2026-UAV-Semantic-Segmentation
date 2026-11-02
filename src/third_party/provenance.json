@@ -1,0 +1,26 @@
+{
+  "public_Python_libraries": {
+    "archive": "public_runtime.zip",
+    "sha256": "c63e214c82a1f6f602e35d51366d50dedc0754541f907b45908f183f37e9259e",
+    "source": "Public Python libraries with their included licenses and package metadata"
+  },
+  "public_model_sources": {
+    "archive": "public_mtp_sources.zip",
+    "sha256": "d3ccc6be5a5dbc64887f9c7f1d7a8b5b9367ed681e541cccb46dc561e1399912",
+    "unchanged_upstream_source": true,
+    "origins": {
+      "intern_image.py": "https://raw.githubusercontent.com/ViTAE-Transformer/MTP/main/RS_Tasks_Finetune/Semantic_Segmentation/mmseg/models/backbones/intern_image.py",
+      "dcnv3.py": "https://raw.githubusercontent.com/ViTAE-Transformer/MTP/main/RS_Tasks_Finetune/Semantic_Segmentation/mmseg/models/backbones/ops_dcnv3/modules/dcnv3.py",
+      "dcnv3_func.py": "https://raw.githubusercontent.com/ViTAE-Transformer/MTP/main/RS_Tasks_Finetune/Semantic_Segmentation/mmseg/models/backbones/ops_dcnv3/functions/dcnv3_func.py",
+      "source_manifest.json": "Manifest of the official MTP source URLs and checksums",
+      "LICENSE": "https://raw.githubusercontent.com/ViTAE-Transformer/MTP/main/LICENSE"
+    },
+    "entry_sha256": {
+      "intern_image.py": "613db20ad40759fe62e867aa93ec0e6e6a5ed64f9aab441fdac1dad33740531a",
+      "dcnv3.py": "343469723450ee6c1a59092be7df323139dd75dd5f4b27775ff8aea854e94aee",
+      "dcnv3_func.py": "8828a91e893743aa8ffba9c65cd9244c9e643c1af187e18b72a2e828d84cc0c4",
+      "source_manifest.json": "60e6331875f3452905fabec9c109b4bcfc76a203e4e808765c8340ad3710397f",
+      "LICENSE": "1ef2cb7f9f0c4064a0914ede7c3e4820120e4a9ec91983e4fe5802fe4ce0ef31"
+    }
+  }
+}
